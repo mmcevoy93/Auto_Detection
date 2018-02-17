@@ -16,12 +16,10 @@ def set_low_up(Lighting):
         lower = np.array([100, 0, 0])
         upper = np.array([200, 20, 255])
 
-
     return lower, upper
 
 
 if __name__ == "__main__":
-
 
     file_name = sys.argv[1]
     frame = cv2.imread(file_name)

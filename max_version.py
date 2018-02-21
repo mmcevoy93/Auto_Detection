@@ -46,7 +46,7 @@ def light_intensity(frame):
 
 
 def detect_armour(led_strips):
-
+    print(led_strips)
     return
 
 
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     if count-1 in led_strips:
         # last values not needed in dictionary. It is boarder
         del led_strips[count-1]
-    print(led_strips)
+    detect_armour(led_strips)
 
     cv2.imshow('Input Image', frame)            # displays our input and
     cv2.imshow('Output Image', frame_applied)   # output images to compare

@@ -59,6 +59,8 @@ def inside_circles(leds):
         Specifically if two circles interect that they are too close to have
         armour inside it
 
+        Sometimes will remove important circles
+
         Input:
             dictionary of leds x, y, z values
 
@@ -66,6 +68,7 @@ def inside_circles(leds):
             same dictionary but removing unneeded points
 
     '''
+    # TODO Work this to be better
     to_remove = []
     if count-1 in led_strips:
         del led_strips[count-1]
@@ -94,8 +97,8 @@ def inside_circles(leds):
 
 
 def detect_armour(led_strips):
-    print(led_strips)
-    # need to think of a better way to do This
+
+    # gonna try size first.
     led_1 = 1
     led_2 = 0
     for n in led_strips:
@@ -109,7 +112,7 @@ def detect_armour(led_strips):
     y = (list(led_strips[led_1])[1] + list(led_strips[led_2])[1]) / 2
     armour_radius = list(led_strips[led_1])[2]
     cv2.circle(frame, (x, y), armour_radius,
-                      (205, 0, 230), 1)
+                      (205, 0, 230), 3)
 
     return
 
@@ -144,7 +147,7 @@ if __name__ == "__main__":
     led_strips = inside_circles(led_strips)
     if len(led_strips) > 2:
         detect_armour(led_strips)
-
+    print(led_strips)
     cv2.imshow('Input Image', frame)            # displays our input and
     cv2.imshow('Output Image', frame_applied)   # output images to compare
     cv2.moveWindow('Input image', 0, 0)

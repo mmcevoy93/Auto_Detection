@@ -53,7 +53,7 @@ def light_intensity(frame):
     return light_level
 
 
-def inside_circles(leds):
+def inside_circles(frame, leds):
     '''
         Getting rid of unneeded led points picked up
         Specifically if two circles interect that they are too close to have
@@ -94,7 +94,7 @@ def inside_circles(leds):
     return leds
 
 
-def find_armour(led_strips):
+def find_armour(frame, led_strips):
     '''
         Finds the armour plates on robots
 
@@ -129,10 +129,11 @@ def find_armour(led_strips):
     for n in led_strips:
         new[count] = led_strips[n]
         count += 1
-    x = (list(new[0])[0] + list(new[1])[0]) / 2
-    y = (list(new[0])[1] + list(new[1])[1]) / 2
-    armour_radius = list(new[0])[2]
-    cv2.circle(frame, (x, y), armour_radius,
+    if len(new)>1:
+        x = (list(new[0])[0] + list(new[1])[0]) / 2
+        y = (list(new[0])[1] + list(new[1])[1]) / 2
+        armour_radius = list(new[0])[2]
+        cv2.circle(frame, (x, y), armour_radius,
                       (205, 0, 230), 3)
 
     return
@@ -179,15 +180,15 @@ def armour_detection(frame):
         del led_strips[count-1]
     # possible that nothing will be detected if catches that
     if len(led_strips) > 2:
-        led_strips = inside_circles(led_strips)
-        find_armour(led_strips)
+        led_strips = inside_circles(frame, led_strips)
+        find_armour(frame, led_strips)
     # print(led_strips)
     cv2.imshow('Input Image', frame)            # displays our input and
     # cv2.imshow('Output Image', frame_applied)   # output images to compare
     cv2.moveWindow('Input image', 0, 0)
     # cv2.moveWindow('Output Image', 650, 0)
 
-    cv2.waitKey(0)
+    cv2.waitKey(5)
 
 
 if __name__ == "__main__":

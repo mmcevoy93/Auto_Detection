@@ -94,7 +94,7 @@ def inside_circles(leds):
     return leds
 
 
-def detect_armour(led_strips):
+def find_armour(led_strips):
 
     # gonna try size first.
     radius = []
@@ -153,7 +153,7 @@ def armour_detection(frame):
         del led_strips[count-1]
     led_strips = inside_circles(led_strips)
     if len(led_strips) > 2:
-        detect_armour(led_strips)
+        find_armour(led_strips)
     print(led_strips)
     cv2.imshow('Input Image', frame)            # displays our input and
     cv2.imshow('Output Image', frame_applied)   # output images to compare

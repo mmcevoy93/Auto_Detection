@@ -95,8 +95,22 @@ def inside_circles(leds):
 
 
 def find_armour(led_strips):
+    '''
+        Finds the armour plates on robots
 
-    # gonna try size first.
+        Inputs:
+            Dictionary of leds
+                keys are 0 - n leds found
+                values are (x, y, r)
+                    x is x coordinate
+                    y is y coordinate
+                    r is led_radius
+        Outputs:
+            no output at the moment
+            will adjust this later
+            for now draws the pink circle where it thinks armour is
+    '''
+
     radius = []
     for n in led_strips:
         radius.append(led_strips[n][2])
@@ -125,13 +139,25 @@ def find_armour(led_strips):
 
 
 def armour_detection(frame):
+    '''
+        Main function of program
+        this calls all previous functions
+
+        Input:
+            frame you wish to detect armour on
+
+        Output:
+            returns nothing just shows a window of frame being proccessed
+
+    '''
+
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    print(light_intensity(frame))
+
     lighting = light_intensity(frame)
     lower, upper = set_low_up(lighting)
     frame_mask = cv2.inRange(frame_HSV, lower, upper)
 
-    frame_applied = cv2.bitwise_and(frame, frame, mask=frame_mask)
+    # frame_applied = cv2.bitwise_and(frame, frame, mask=frame_mask)
 
     ret, thresh = cv2.threshold(frame_mask, 127, 255, 1)
     im2, contours, h = cv2.findContours(thresh, 1, 2)
@@ -151,14 +177,15 @@ def armour_detection(frame):
 
     if count-1 in led_strips:
         del led_strips[count-1]
-    led_strips = inside_circles(led_strips)
+    # possible that nothing will be detected if catches that
     if len(led_strips) > 2:
+        led_strips = inside_circles(led_strips)
         find_armour(led_strips)
-    print(led_strips)
+    # print(led_strips)
     cv2.imshow('Input Image', frame)            # displays our input and
-    cv2.imshow('Output Image', frame_applied)   # output images to compare
+    # cv2.imshow('Output Image', frame_applied)   # output images to compare
     cv2.moveWindow('Input image', 0, 0)
-    cv2.moveWindow('Output Image', 650, 0)
+    # cv2.moveWindow('Output Image', 650, 0)
 
     cv2.waitKey(0)
 

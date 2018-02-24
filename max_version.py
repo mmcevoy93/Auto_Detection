@@ -70,8 +70,6 @@ def inside_circles(leds):
     '''
     # TODO Work this to be better
     to_remove = []
-    if count-1 in led_strips:
-        del led_strips[count-1]
     for n in leds:
         for m in leds:
             dx = abs(leds[m][0]-leds[n][0])
@@ -126,10 +124,7 @@ def detect_armour(led_strips):
     return
 
 
-if __name__ == "__main__":
-
-    file_name = sys.argv[1]
-    frame = cv2.imread(file_name)
+def armour_detection(frame):
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     print(light_intensity(frame))
     lighting = light_intensity(frame)
@@ -153,6 +148,9 @@ if __name__ == "__main__":
         led_radius = (led_width+led_height)/2
         led_strips[count] = [x, y, led_radius]
         count += 1
+
+    if count-1 in led_strips:
+        del led_strips[count-1]
     led_strips = inside_circles(led_strips)
     if len(led_strips) > 2:
         detect_armour(led_strips)
@@ -163,3 +161,10 @@ if __name__ == "__main__":
     cv2.moveWindow('Output Image', 650, 0)
 
     cv2.waitKey(0)
+
+
+if __name__ == "__main__":
+
+    file_name = sys.argv[1]
+    frame = cv2.imread(file_name)
+    armour_detection(frame)

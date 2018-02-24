@@ -99,18 +99,27 @@ def inside_circles(leds):
 def detect_armour(led_strips):
 
     # gonna try size first.
-    led_1 = 1
-    led_2 = 0
+    radius = []
     for n in led_strips:
-        for m in led_strips:
-            if n == m:
-                continue
-            if abs(led_strips[n][1] - led_strips[m][1]) < abs(led_strips[led_1][1] - led_strips[led_2][1]):
-                led_1 = n
-                led_2 = m
-    x = (list(led_strips[led_1])[0] + list(led_strips[led_2])[0]) / 2
-    y = (list(led_strips[led_1])[1] + list(led_strips[led_2])[1]) / 2
-    armour_radius = list(led_strips[led_1])[2]
+        radius.append(led_strips[n][2])
+    average_radius = sum(radius)/len(radius)
+
+    remove = []
+    for n in led_strips:
+        if led_strips[n][2] < average_radius:
+            remove.append(n)
+        pass
+    for r in remove:
+        if r in led_strips:
+            del led_strips[r]
+    new = {}
+    count = 0
+    for n in led_strips:
+        new[count] = led_strips[n]
+        count += 1
+    x = (list(new[0])[0] + list(new[1])[0]) / 2
+    y = (list(new[0])[1] + list(new[1])[1]) / 2
+    armour_radius = list(new[0])[2]
     cv2.circle(frame, (x, y), armour_radius,
                       (205, 0, 230), 3)
 

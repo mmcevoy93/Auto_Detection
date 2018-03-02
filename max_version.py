@@ -5,7 +5,6 @@
 import numpy as np
 import cv2
 import sys
-import math
 
 
 def set_low_up(lighting, led_color='Red'):
@@ -53,7 +52,7 @@ def light_intensity(frame):
     return light_level
 
 
-def inside_circles(frame, leds):
+def draw_circles(frame, leds):
     '''
         Getting rid of unneeded led points picked up
         Specifically if two circles interect that they are too close to have
@@ -62,36 +61,20 @@ def inside_circles(frame, leds):
         Sometimes will remove important circles
 
         Input:
-            dictionary of leds x, y, z values
+            frame and x, y and radius values in a dictionary
 
         Output:
-            same dictionary but removing unneeded points
+            No return just draws led circles
 
     '''
     # TODO Work this to be better
-    to_remove = []
-    for n in leds:
-        for m in leds:
-            dx = abs(leds[m][0]-leds[n][0])
-            dy = abs(leds[m][1]-leds[n][1])
-            Rn = leds[n][2]
-            Rm = leds[m][2]
-            if n == m:
-                continue
-            if (math.sqrt(math.pow(dx, 2) + math.pow(dy, 2)) < (Rn+Rm)) and (math.sqrt(math.pow(dx, 2) + math.pow(dy, 2)) > math.fabs(Rn-Rm)):
-                to_remove.append(n)
-                to_remove.append(m)
-    for r in to_remove:
-        if r in leds:
-            del leds[r]
+
     for o in leds:
         x = leds[o][0]
         y = leds[o][1]
         radius = leds[o][2]
         cv2.circle(frame, (x, y), radius,
                           (255, 255, 0), 1)
-
-    return leds
 
 
 def find_armour(frame, led_strips):
@@ -129,12 +112,12 @@ def find_armour(frame, led_strips):
     for n in led_strips:
         new[count] = led_strips[n]
         count += 1
-    if len(new)>1:
+    if len(new) > 1:
         x = (list(new[0])[0] + list(new[1])[0]) / 2
         y = (list(new[0])[1] + list(new[1])[1]) / 2
         armour_radius = list(new[0])[2]
         cv2.circle(frame, (x, y), armour_radius,
-                      (205, 0, 230), 3)
+                          (205, 0, 230), 3)
 
     return
 
@@ -142,7 +125,7 @@ def find_armour(frame, led_strips):
 def armour_detection(frame):
     '''
         Main function of program
-        this calls all previous functions
+        manipulates frames to be able to find armour
 
         Input:
             frame you wish to detect armour on
@@ -153,13 +136,9 @@ def armour_detection(frame):
     '''
 
     frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-
     lighting = light_intensity(frame)
     lower, upper = set_low_up(lighting)
     frame_mask = cv2.inRange(frame_HSV, lower, upper)
-
-    # frame_applied = cv2.bitwise_and(frame, frame, mask=frame_mask)
-
     ret, thresh = cv2.threshold(frame_mask, 127, 255, 1)
     im2, contours, h = cv2.findContours(thresh, 1, 2)
     cv2.drawContours(frame, contours, -1, (0, 0, 255), 1)
@@ -178,17 +157,14 @@ def armour_detection(frame):
 
     if count-1 in led_strips:
         del led_strips[count-1]
-    # possible that nothing will be detected if catches that
+    # possible that nothing will be detected this will catch that
     if len(led_strips) > 2:
-        led_strips = inside_circles(frame, led_strips)
+        draw_circles(frame, led_strips)  # NOTE will not be needed in final ver
         find_armour(frame, led_strips)
-    # print(led_strips)
     cv2.imshow('Input Image', frame)            # displays our input and
-    # cv2.imshow('Output Image', frame_applied)   # output images to compare
     cv2.moveWindow('Input image', 0, 0)
-    # cv2.moveWindow('Output Image', 650, 0)
 
-    cv2.waitKey(5)
+    cv2.waitKey(0)
 
 
 if __name__ == "__main__":

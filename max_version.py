@@ -164,8 +164,7 @@ def armour_detection(frame):
     cv2.imshow('Input Image', frame)            # displays our input and
     cv2.moveWindow('Input image', 0, 0)
 
-    cv2.waitKey(0)
-
+    cv2.waitKey(5)
 
 if __name__ == "__main__":
 

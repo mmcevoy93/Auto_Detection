@@ -11,8 +11,7 @@ Max:
     in terminal:
     python2.7 max_version.py [image filename]
     Note include directory path in filename if not in same directory as max_version.py
-    Images not included in git they can be downloaded 
-   [here](https://drive.google.com/open?id=1IA7bzzuC2wA8csdnCmIERRgIqvX2IPwp)
+   Images not included in git they can be downloaded [here](https://drive.google.com/open?id=1IA7bzzuC2wA8csdnCmIERRgIqvX2IPwp)
     
 
 ## Armour Detection

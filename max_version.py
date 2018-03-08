@@ -1,6 +1,22 @@
 '''
     This is the code we will implement to our robot to detect the armour and
     later send this info to other parts of the code
+
+    ~/Documents/robomasters/row_ws/
+    .devel/setup.bash
+    roscore
+
+    New Terminal
+    .devle/setup.bash
+    rosrun industry_camera_bridge camera_publisher
+
+    New Terminal
+    .devle/setip.bash
+    rosrun camera_subscriber camera_subscriber.py
+
+    cd src/camera_subscriber/scripts/Auto_Detection
+
+
 '''
 import numpy as np
 import cv2
@@ -82,6 +98,8 @@ def find_armour(frame, led_strips):
         Finds the armour plates on robots
 
         Inputs:
+            Frame we want to detect armour on
+
             Dictionary of leds
                 keys are 0 - n leds found
                 values are (x, y, r)
@@ -116,10 +134,34 @@ def find_armour(frame, led_strips):
         x = (list(new[0])[0] + list(new[1])[0]) / 2
         y = (list(new[0])[1] + list(new[1])[1]) / 2
         armour_radius = list(new[0])[2]
+        # draws pink circle to mark armour
         cv2.circle(frame, (x, y), armour_radius,
                           (205, 0, 230), 3)
+    return new
 
-    return
+
+def rotation(frame, angle):
+    """
+        Will apply a rotation to the inputed frame based on angle
+        only called in main
+
+        Tests:
+            max_version.py red/39 -125
+            max_version.py red/48 180
+            max_version.py red/54 -25
+
+        Input:
+            image frame
+            angle of rotation
+
+        Output:
+            rotated image frame
+    """
+    image_center = tuple(np.array(frame.shape[1::-1]) / 2)  # center of image
+    rot_mat = cv2.getRotationMatrix2D(image_center, angle, 1.0)
+    result = cv2.warpAffine(frame, rot_mat, frame.shape[1::-1],
+                            flags=cv2.INTER_LINEAR)
+    return result
 
 
 def armour_detection(frame):
@@ -146,12 +188,15 @@ def armour_detection(frame):
     led_strips = {}
     count = 0
     for contour in contours:
+
         tempCircle = cv2.minAreaRect(contour)
         led_width = int(tempCircle[1][1])
         led_height = int(tempCircle[1][0])
+
         x = int(tempCircle[0][0])
         y = int(tempCircle[0][1])
         led_radius = (led_width+led_height)/2
+
         led_strips[count] = [x, y, led_radius]
         count += 1
 
@@ -159,15 +204,26 @@ def armour_detection(frame):
         del led_strips[count-1]
     # possible that nothing will be detected this will catch that
     if len(led_strips) > 2:
+        led_strips = find_armour(frame, led_strips)
         draw_circles(frame, led_strips)  # NOTE will not be needed in final ver
-        find_armour(frame, led_strips)
-    cv2.imshow('Input Image', frame)            # displays our input and
-    cv2.moveWindow('Input image', 0, 0)
+
+    cv2.imshow('Output Image', frame)            # displays our input and
+    cv2.moveWindow('Output Image', 650, 0)
 
     cv2.waitKey(5)
+
 
 if __name__ == "__main__":
 
     file_name = sys.argv[1]
     frame = cv2.imread(file_name)
+    temp = frame
+    edges = cv2.Canny(temp, 100, 20)  # might use this somewhere
+    if len(sys.argv) > 2:
+        angle = int(sys.argv[2])
+        frame = rotation(frame, angle)
+    cv2.imshow('Input Image', temp)
+    cv2.moveWindow('Input Image', 0, 0)
     armour_detection(frame)
+
+    cv2.waitKey(0)

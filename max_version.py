@@ -145,11 +145,6 @@ def rotation(frame, angle):
         Will apply a rotation to the inputed frame based on angle
         only called in main
 
-        Tests:
-            max_version.py red/39 -125
-            max_version.py red/48 180
-            max_version.py red/54 -25
-
         Input:
             image frame
             angle of rotation
@@ -214,16 +209,21 @@ def armour_detection(frame):
 
 
 if __name__ == "__main__":
-
     file_name = sys.argv[1]
     frame = cv2.imread(file_name)
     temp = frame
-    edges = cv2.Canny(temp, 100, 20)  # might use this somewhere
-    if len(sys.argv) > 2:
-        angle = int(sys.argv[2])
+    angle = 0
+    while True:
+        frame = temp
         frame = rotation(frame, angle)
-    cv2.imshow('Input Image', temp)
-    cv2.moveWindow('Input Image', 0, 0)
-    armour_detection(frame)
-
-    cv2.waitKey(0)
+        cv2.imshow('Input Image', temp)
+        cv2.moveWindow('Input Image', 0, 0)
+        armour_detection(frame)
+        input_key = cv2.waitKey(0) & 0xFF
+        if input_key == 100:
+            angle += 10
+        elif input_key == 97:
+            angle -= 10
+        elif input_key == 32:
+            break
+        input_key = 0

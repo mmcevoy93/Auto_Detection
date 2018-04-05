@@ -10,9 +10,13 @@ Max:
 
     python2.7 max_version.py [image filename] [optional angle rotation]
    Note include directory path in filename if not in same directory as max_version.py
+   
    'a' rotate clockwise
+   
    'd' rotate counter-clockwise
+   
    'SPACE BAR' exit 
+   
    Images not included in git they can be downloaded [here](https://drive.google.com/open?id=1IA7bzzuC2wA8csdnCmIERRgIqvX2IPwp)
 
 

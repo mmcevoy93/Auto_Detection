@@ -2,6 +2,8 @@
     This is the code we will implement to our robot to detect the armour and
     later send this info to other parts of the code
 
+    How to setup and run camera on miniPC
+
     ~/Documents/robomasters/row_ws/
     .devel/setup.bash
     roscore
@@ -15,6 +17,25 @@
     rosrun camera_subscriber camera_subscriber.py
 
     cd src/camera_subscriber/scripts/Auto_Detection
+
+    Ubuntu 16.4
+    Depth Camera setup
+
+    ssh nVidia@192.168.199.111
+    nVidia
+    roscore
+
+    New Terminal
+
+    roslaunch realsense2_camera rs_rbd.launch
+
+    New Terminal
+
+    rostopic light_intensity
+
+    cd Downloads/image_saver/image_saver.py
+
+    python image_saver.py
 
 
 '''
@@ -36,6 +57,8 @@ def set_low_up(lighting, led_color='Red'):
 
     '''
     # TODO add more bounds and figure out what lighting works best
+    # TODO work on image 79 for bounds
+    # TODO work on image 90 for bounds
     # seems to get everything but i'll keep if's incase something changes
     if led_color == 'Blue':
         lower = np.array([50, 0, 255])
@@ -89,8 +112,8 @@ def draw_circles(frame, leds):
         x = leds[o][0]
         y = leds[o][1]
         radius = leds[o][2]
-        cv2.circle(frame, (x, y), radius,
-                          (255, 255, 0), 1)
+        # cv2.circle(frame, (x, y), radius,
+                          # (255, 255, 0), 1)
 
 
 def find_armour(frame, led_strips):
@@ -110,12 +133,11 @@ def find_armour(frame, led_strips):
             no output at the moment
             will adjust this later
             for now draws the pink circle where it thinks armour is
-    '''
 
-    radius = []
-    for n in led_strips:
-        radius.append(led_strips[n][2])
-    average_radius = sum(radius)/len(radius)
+    '''
+    # NOTE this eliminates the smaller circles but we'll
+    # have to decide how far away we will want to shoot
+    average_radius = 10
 
     remove = []
     for n in led_strips:
@@ -126,6 +148,10 @@ def find_armour(frame, led_strips):
         if r in led_strips:
             del led_strips[r]
     new = {}
+
+
+    # print(led_strips)  # NOTE remove later
+
     count = 0
     for n in led_strips:
         new[count] = led_strips[n]
@@ -135,9 +161,9 @@ def find_armour(frame, led_strips):
         y = (list(new[0])[1] + list(new[1])[1]) / 2
         armour_radius = list(new[0])[2]
         # draws pink circle to mark armour
-        cv2.circle(frame, (x, y), armour_radius,
+        cv2.circle(frame, (x, y), armour_radius+10,       # TODO put back later
                           (205, 0, 230), 3)
-    return new
+    return x, y, armour_radius  # NOTE TEMP
 
 
 def rotation(frame, angle):
@@ -199,18 +225,30 @@ def armour_detection(frame):
         del led_strips[count-1]
     # possible that nothing will be detected this will catch that
     if len(led_strips) > 2:
-        led_strips = find_armour(frame, led_strips)
+        x, y, r = find_armour(frame, led_strips)
         draw_circles(frame, led_strips)  # NOTE will not be needed in final ver
 
-    cv2.imshow('Output Image', frame)            # displays our input and
-    cv2.moveWindow('Output Image', 650, 0)
+    # NOTE remove just testing this out
+
+    for n in led_strips:
+        for m in led_strips:
+            if led_strips[n][0] > led_strips[m][0]:
+                # cv2.line(frame, (led_strips[n][0], led_strips[n][1]),
+                #                (led_strips[m][0], led_strips[m][1]),
+                #                (187, 255, 0), 2)
+                pass
+
+    # cv2.imshow('Output Image', frame)            # displays our input and
+    # cv2.moveWindow('Output Image', 650, 0)
 
     cv2.waitKey(5)
+    return x, y, r  # NOTE TEMP
 
 
 if __name__ == "__main__":
     file_name = sys.argv[1]
     frame = cv2.imread(file_name)
+    print(light_intensity(frame))
     temp = frame
     angle = 0
     while True:
@@ -218,7 +256,7 @@ if __name__ == "__main__":
         frame = rotation(frame, angle)
         cv2.imshow('Input Image', temp)
         cv2.moveWindow('Input Image', 0, 0)
-        armour_detection(frame)
+        x, y, r = armour_detection(frame)  # NOTE TEMP
         input_key = cv2.waitKey(0) & 0xFF
         if input_key == 100:
             angle += 10

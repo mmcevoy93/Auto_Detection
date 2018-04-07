@@ -112,8 +112,8 @@ def draw_circles(frame, leds):
         x = leds[o][0]
         y = leds[o][1]
         radius = leds[o][2]
-        # cv2.circle(frame, (x, y), radius,
-                          # (255, 255, 0), 1)
+        cv2.circle(frame, (x, y), radius,
+                          (255, 255, 0), 1)
 
 
 def find_armour(frame, led_strips):

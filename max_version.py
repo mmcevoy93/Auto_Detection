@@ -138,7 +138,6 @@ def find_armour(frame, led_strips):
     # NOTE this eliminates the smaller circles but we'll
     # have to decide how far away we will want to shoot
     average_radius = 10
-
     remove = []
     for n in led_strips:
         if led_strips[n][2] < average_radius:
@@ -149,9 +148,6 @@ def find_armour(frame, led_strips):
             del led_strips[r]
     new = {}
 
-
-    # print(led_strips)  # NOTE remove later
-
     count = 0
     for n in led_strips:
         new[count] = led_strips[n]
@@ -161,9 +157,9 @@ def find_armour(frame, led_strips):
         y = (list(new[0])[1] + list(new[1])[1]) / 2
         armour_radius = list(new[0])[2]
         # draws pink circle to mark armour
-        cv2.circle(frame, (x, y), armour_radius+10,       # TODO put back later
+        cv2.circle(frame, (x, y), armour_radius+10,
                           (205, 0, 230), 3)
-    return x, y, armour_radius  # NOTE TEMP
+    return x, y, armour_radius, led_strips
 
 
 def rotation(frame, angle):
@@ -225,7 +221,7 @@ def armour_detection(frame):
         del led_strips[count-1]
     # possible that nothing will be detected this will catch that
     if len(led_strips) > 2:
-        x, y, r = find_armour(frame, led_strips)
+        x, y, r, led_strips = find_armour(frame, led_strips)
         draw_circles(frame, led_strips)  # NOTE will not be needed in final ver
 
     # NOTE remove just testing this out
@@ -242,7 +238,7 @@ def armour_detection(frame):
     # cv2.moveWindow('Output Image', 650, 0)
 
     cv2.waitKey(5)
-    return x, y, r  # NOTE TEMP
+    return x, y, r, led_strips
 
 
 if __name__ == "__main__":
@@ -256,7 +252,7 @@ if __name__ == "__main__":
         frame = rotation(frame, angle)
         cv2.imshow('Input Image', temp)
         cv2.moveWindow('Input Image', 0, 0)
-        x, y, r = armour_detection(frame)  # NOTE TEMP
+        x, y, r, led_strips = armour_detection(frame)  # NOTE TEMP
         input_key = cv2.waitKey(0) & 0xFF
         if input_key == 100:
             angle += 10

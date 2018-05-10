@@ -15,7 +15,7 @@ class Armour:
         self.radius = None          # radius of armour
         self.width = None           # width of frame
         self.height = None          # height of frame
-        self.min_led = 10           # minimum led size to look for
+        self.min_led = 15           # minimum led size to look for
         self.max_led = 100          # maximum led size to look for
         self.light = None           # lighting level of frame
         self.color_frame = None     # Frame to manipulate
@@ -25,10 +25,10 @@ class Armour:
         self.leds = []              # List of leds (x, y, radius)
         self.noise_level = 60       # Amount of noise on armour thats alright
         self.angle = None           # angle between two leds
-        self.distance = None        # distance of armour away from camera
+        self.distance = 600         # distance of armour away from camera
         self.v1 = 0                 # canny 1
-        self.v2 = 100                # canny 2
-        self.v3 = 0               # canny 3
+        self.v2 = 100               # canny 2
+        self.v3 = 0                 # canny 3
 
     def _light_intensity(self, color_frame):
         """
@@ -67,7 +67,7 @@ class Armour:
         self._set_bounds(color_frame)
         frame_HSV = cv2.cvtColor(color_frame, cv2.COLOR_BGR2HSV)
         self.color_frame = cv2.inRange(frame_HSV, self.lower, self.upper)
-        # cv2.imshow("Masked", self.color_frame)
+        cv2.imshow("Masked", self.color_frame)
 
     def _led_locations(self, color_frame):
         """
@@ -80,7 +80,7 @@ class Armour:
         ret, thresh = cv2.threshold(self.color_frame, 127, 255, 1)
         im2, contours, h = cv2.findContours(thresh, 1, 2)
         led_strips = []
-        # NOTE Changed led_strips to list
+        # NOTE Changed led_strips to list in this version
         for contour in contours:
             tempCircle = cv2.minAreaRect(contour)
             led_width = int(tempCircle[1][1])
@@ -104,7 +104,7 @@ class Armour:
         slice1Copy = np.uint8(depth_frame)
 
         self.depth_frame = cv2.Canny(slice1Copy, self.v1, self.v2)
-        cv2.imshow("canny_edges", self.depth_frame)
+        # cv2.imshow("canny_edges", self.depth_frame)
 
     def _test_point(self, led1, led2):
         """
@@ -157,7 +157,7 @@ class Armour:
         if self.x is not None:
             self.distance = depth_frame[self.y, self.x]
         else:
-            self.distance = 800
+            self.distance = 600
 
     def _change_noise(self):
         """
@@ -165,8 +165,10 @@ class Armour:
 
             NOTE: need to adjust for better preformance
         """
-        if self.distance > 700:
-            self.v1 = 100
+        if self.distance > 800:
+            self.v1 = 10
+        elif self.distance > 1000:
+            self.v1 = 30
         else:
             self.v1 = 10
 
@@ -193,8 +195,12 @@ class Armour:
         self._size(depth_frame)
         is_armour = False
         led_strips = self.leds
+        test_radius = led_strips[0][2]  # The led should be this size normally
         while led_strips:
             led1 = led_strips.pop(0)
+            if (led1[2] < test_radius - 5) or (led1[2] > test_radius + 5):
+                # if led is not around this test size then skip it
+                continue
             for led2 in led_strips:
                 self._test_point(led1, led2)
                 is_armour = self._test_armour()
@@ -231,11 +237,9 @@ if __name__ == "__main__":
         number += 1
         frame = cv2.imread(str(number)+'.png')
         depth_image = np.load(str(number)+'.npy')
-
         R.find_armour(frame, depth_image)
         if R.x is not None:
             cv2.circle(frame, (R.x, R.y), R.radius, (0, 255, 0), 2)
-        # frame = R.cirlce_leds(frame)
         cv2.imshow("Class Test", frame)
         input_key = cv2.waitKey(5) & 0xFF
         if input_key == 32:

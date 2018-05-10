@@ -67,7 +67,7 @@ class Armour:
         self._set_bounds(color_frame)
         frame_HSV = cv2.cvtColor(color_frame, cv2.COLOR_BGR2HSV)
         self.color_frame = cv2.inRange(frame_HSV, self.lower, self.upper)
-        cv2.imshow("Masked", self.color_frame)
+        # cv2.imshow("Masked", self.color_frame)
 
     def _led_locations(self, color_frame):
         """

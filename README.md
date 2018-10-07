@@ -22,3 +22,8 @@ Max:
 
 ## Armour Detection
 ![alt tag](https://github.com/mmcevoy93/Screen-Shots/blob/master/AUTO_DETECTION_SAMPLE.png "Sample Input and Output")
+
+
+
+## Code in Action
+![alt tag] (https://photos.app.goo.gl/on9bYeYj7SkKYuYc6)
